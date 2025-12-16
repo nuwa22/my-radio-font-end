@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import useRadioStore from '../../store/useRadioStore';
-import { Play, Pause, SkipBack, SkipForward, Heart, Radio, Search, Volume1, VolumeX, ListMusic, Volume2 } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Heart, Radio, Search, Volume1, VolumeX, ListMusic, Volume2, X } from 'lucide-react';
 
-// --- Visualizer ---
+// --- Visualizer Component ---
 const ModernVisualizer = ({ isPlaying }) => {
   return (
     <div className="flex justify-center items-end h-12 md:h-20 gap-1 md:gap-1.5 w-full px-4 my-4 animate-hue">
@@ -84,20 +84,14 @@ const Home = () => {
     setIsMobileListOpen(false);
   };
 
-
   const getDisplayedStations = () => {
     let data = stations;
-
-    // 1. Filter by Tab (All vs Favorites)
     if (viewMode === 'favorites') {
         data = data.filter(s => favorites.includes(s._id));
     }
-
-    // 2. Filter by Search
     if (searchTerm) {
         data = data.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
     }
-
     return data;
   };
 
@@ -113,15 +107,27 @@ const Home = () => {
           ${isMobileListOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="p-4 border-b border-white/5 bg-[#140033]/50 flex-shrink-0 pt-safe-top">
-            <h1 className="text-lg font-bold flex items-center gap-2 text-white animate-hue">
-                <span className="bg-gradient-to-br from-pink-500 to-cyan-500 p-1 rounded-md shadow-lg">
-                    <Radio size={16} className="text-white" />
-                </span>
-                Nuwa Radio
-            </h1>
             
-            {/* --- NEW: TABS (All / Favorites) --- */}
-            <div className="flex items-center gap-2 mt-4 bg-[#1e0542] p-1 rounded-lg">
+            {/* Header Flex Row: Title + Close Button */}
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-lg font-bold flex items-center gap-2 text-white animate-hue">
+                    <span className="bg-gradient-to-br from-pink-500 to-cyan-500 p-1 rounded-md shadow-lg">
+                        <Radio size={16} className="text-white" />
+                    </span>
+                    Nuwa Radio
+                </h1>
+                
+                {/* 🔴 NEW: Close Button (Visible only on Mobile) */}
+                <button 
+                    onClick={() => setIsMobileListOpen(false)}
+                    className="md:hidden p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition cursor-pointer"
+                >
+                    <X size={24} />
+                </button>
+            </div>
+            
+            {/* Tabs */}
+            <div className="flex items-center gap-2 bg-[#1e0542] p-1 rounded-lg">
                 <button 
                     onClick={() => setViewMode('all')}
                     className={`flex-1 text-xs font-bold py-1.5 rounded-md transition-all cursor-pointer ${viewMode === 'all' ? 'bg-pink-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
@@ -136,6 +142,7 @@ const Home = () => {
                 </button>
             </div>
 
+            {/* Search */}
             <div className="mt-3 relative group">
                 <Search size={14} className="absolute left-3 top-2.5 text-gray-400 group-focus-within:text-pink-400 transition"/>
                 <input 
@@ -147,6 +154,7 @@ const Home = () => {
             </div>
         </div>
 
+        {/* List */}
         <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar pb-20 md:pb-2">
             {displayedStations.length > 0 ? (
                 displayedStations.map((station) => (
@@ -168,7 +176,6 @@ const Home = () => {
                                 <p className="text-[10px] text-gray-500 uppercase">{station.category}</p>
                             </div>
                         </div>
-                        {/* List Favorite Indicator */}
                         {favorites.includes(station._id) && (
                             <Heart size={12} fill="#ec4899" className="text-pink-500 mr-2 opacity-50"/>
                         )}
@@ -188,7 +195,7 @@ const Home = () => {
             )}
         </div>
         
-        {/* Mobile "Back to Player" Button */}
+        {/* Mobile "Back to Player" Button (Bottom) */}
         {activeStation && (
             <div className="md:hidden absolute bottom-4 left-0 right-0 px-4">
                 <button onClick={() => setIsMobileListOpen(false)} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 p-3 rounded-lg font-bold text-sm shadow-lg flex items-center justify-center gap-2 cursor-pointer">
@@ -267,7 +274,7 @@ const Home = () => {
                     </div>
                 </div>
 
-                {/* Volume Slider with FIX */}
+                {/* Volume Slider */}
                 <div className="w-full max-w-sm bg-[#1a0b2e]/80 backdrop-blur-xl rounded-2xl p-3 flex items-center gap-3 border border-white/5 mt-auto flex-shrink-0 mb-safe-bottom shadow-lg cursor-pointer">
                     <button onClick={toggleMute} className="text-gray-400 hover:text-pink-500 transition cursor-pointer">
                         {volume === 0 ? <VolumeX size={20} /> : (volume < 0.5 ? <Volume1 size={20} /> : <Volume2 size={20} />)}
