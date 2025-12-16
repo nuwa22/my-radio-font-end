@@ -8,15 +8,26 @@ const useRadioStore = create(
       isPlaying: false,
       stations: [],
       favorites: [],
-      volume: 0.5, // 🔊 Default Volume (50%)
+      volume: 0.5,
+      prevVolume: 0.5, 
 
       setStations: (stations) => set({ stations }),
       playStation: (station) => set({ activeStation: station, isPlaying: true }),
       togglePlay: () => set((state) => ({ isPlaying: !state.isPlaying })),
       setIsPlaying: (status) => set({ isPlaying: status }),
       
-      // Volume වෙනස් කරන Function එක
       setVolume: (vol) => set({ volume: vol }),
+
+     
+      toggleMute: () => set((state) => {
+        if (state.volume > 0) {
+           
+            return { prevVolume: state.volume, volume: 0 };
+        } else {
+        
+            return { volume: state.prevVolume || 0.5 };
+        }
+      }),
 
       playNext: () => {
         const { stations, activeStation, playStation } = get();
@@ -45,7 +56,7 @@ const useRadioStore = create(
     }),
     {
       name: 'radio-storage',
-      partialize: (state) => ({ favorites: state.favorites, volume: state.volume }), // Volume එකත් Save වෙනවා
+      partialize: (state) => ({ favorites: state.favorites, volume: state.volume }),
     }
   )
 );

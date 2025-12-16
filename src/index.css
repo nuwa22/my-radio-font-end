@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Custom Scrollbar for the list */
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
@@ -15,7 +15,7 @@
   background: #475569; 
 }
 
-/* Visualizer Animation */
+
 @keyframes music-bar {
   0% { height: 10%; }
   50% { height: 100%; }
@@ -26,14 +26,14 @@
   animation: music-bar 1s infinite ease-in-out;
 }
 
-/* --- index.css අගට මේවා දාන්න --- */
 
-/* 1. Heartbeat Animation (ගැහෙනවා වගේ පෙනෙන එක) */
+
+
 @keyframes heartbeat {
   0% { transform: scale(1); }
-  15% { transform: scale(1.05); } /* Lub */
+  15% { transform: scale(1.05); } 
   30% { transform: scale(1); }
-  45% { transform: scale(1.08); } /* Dub (ගොඩක් ලොකු වෙනවා) */
+  45% { transform: scale(1.08); } 
   60% { transform: scale(1); }
   100% { transform: scale(1); }
 }
@@ -42,7 +42,7 @@
   animation: heartbeat 1.2s infinite ease-in-out;
 }
 
-/* 2. Color Shift Animation (පාට මාරු වීම) */
+
 @keyframes hue-shift {
   0% { filter: hue-rotate(0deg); }
   100% { filter: hue-rotate(360deg); }
@@ -52,7 +52,7 @@
   animation: hue-shift 10s linear infinite;
 }
 
-/* 3. Smooth Bar Animation */
+
 @keyframes sound-wave {
   0%, 100% { height: 10%; }
   50% { height: 100%; }

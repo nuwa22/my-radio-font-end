@@ -9,7 +9,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  // Token එක ගන්න
+
   const token = localStorage.getItem('token');
 
   const config = {
