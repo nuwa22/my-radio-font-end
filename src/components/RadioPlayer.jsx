@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import useRadioStore from '../store/useRadioStore';
-import { Play, Pause, Radio, Volume2 } from 'lucide-react';
+import { Play, Pause, Radio } from 'lucide-react';
 
 const RadioPlayer = () => {
   const { activeStation, isPlaying, togglePlay, setIsPlaying } = useRadioStore();
@@ -26,13 +26,39 @@ const RadioPlayer = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         
         {/* Info Area */}
+        {/* ✅ FIXED: 'flඩ්ex' තිබුණ තැන 'flex' කළා */}
         <div className="flex items-center gap-3 md:gap-4">
-          <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center animate-pulse shadow-lg shadow-purple-500/30">
-            <Radio size={20} className="text-white" />
+          
+          {/* Logo / Icon Area */}
+          <div className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 border-purple-500/50 shadow-lg flex-shrink-0
+            ${isPlaying ? 'animate-[spin_6s_linear_infinite]' : ''} transition-all duration-700 bg-[#080410]`}>
+            
+            {activeStation.logoUrl ? (
+                // ✅ UPDATE: 'object-cover' දැම්මා (කිසිම හිස් තැනක් නැතුව රවුම පිරෙනවා)
+                <img 
+                    src={activeStation.logoUrl} 
+                    alt={activeStation.name} 
+                    className="w-full h-full object-cover" 
+                    onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} 
+                />
+            ) : null}
+
+            {/* Fallback Icon */}
+            <div className={`w-full h-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center absolute top-0 left-0 ${activeStation.logoUrl ? 'hidden' : 'flex'}`}>
+                <Radio size={24} className="text-white" />
+            </div>
           </div>
-          <div>
-            <h3 className="font-bold text-sm md:text-lg text-white">{activeStation.name}</h3>
-            <p className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider">{activeStation.category}</p>
+
+          {/* Text Info */}
+          <div className="overflow-hidden">
+            <h3 className="font-bold text-sm md:text-lg text-white truncate max-w-[150px] md:max-w-xs">
+                {activeStation.name}
+            </h3>
+            <p className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                <span className="text-purple-400 font-bold">{activeStation.language || 'Radio'}</span>
+                <span className="w-1 h-1 rounded-full bg-slate-600"></span>
+                <span>{activeStation.category}</span>
+            </p>
           </div>
         </div>
 
@@ -40,7 +66,7 @@ const RadioPlayer = () => {
         <div className="flex items-center gap-4">
             <button 
             onClick={togglePlay}
-            className="bg-white text-slate-900 p-3 rounded-full hover:scale-110 transition shadow-lg shadow-white/10"
+            className="bg-white text-slate-900 p-3 rounded-full hover:scale-110 transition shadow-lg shadow-white/10 flex-shrink-0"
             >
             {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
             </button>

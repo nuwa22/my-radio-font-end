@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Trash2, Plus, LogOut, Edit, X, Save } from 'lucide-react';
+import { Trash2, Plus, LogOut, Edit, X, Save, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const Dashboard = () => {
   const [stations, setStations] = useState([]);
-  const [form, setForm] = useState({ name: '', category: '', language: 'Sinhala', streamUrl: '' });
+  // ✅ 1. State එකට logoUrl එකතු කළා
+  const [form, setForm] = useState({ name: '', category: '', language: 'Sinhala', streamUrl: '', logoUrl: '' });
   const [editingId, setEditingId] = useState(null);
   
   const navigate = useNavigate();
@@ -31,43 +33,41 @@ const Dashboard = () => {
     }
   };
 
-  // ෆෝම් එක Reset කරන Function එක
   const resetForm = () => {
-    setForm({ name: '', category: '', language: 'Sinhala', streamUrl: '' });
+    // ✅ 2. Reset කරනකොට logoUrl එකත් හිස් කරනවා
+    setForm({ name: '', category: '', language: 'Sinhala', streamUrl: '', logoUrl: '' });
     setEditingId(null);
   };
 
-  // Add හෝ Update කරන Function එක
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (editingId) {
-        // --- UPDATE (PUT) ---
         await axios.put(`${backendUrl}/api/stations/${editingId}`, form, config);
-        alert("Station Updated Successfully!");
+        toast.success("Station Updated Successfully!");
       } else {
-        // --- ADD (POST) ---
         await axios.post(`${backendUrl}/api/stations`, form, config);
-        alert("Station Added Successfully!");
+        toast.success("Station Added Successfully!");
       }
       resetForm();
       fetchStations();
     } catch (err) {
       console.error(err);
-      alert("Error processing request");
+      toast.error("Error processing request");
     }
   };
 
-  // Edit Button එක එබුවම Data ටික Form එකට දාන හැටි
   const handleEditClick = (station) => {
     setEditingId(station._id);
+    // ✅ 3. Edit කරනකොට පරණ ලෝගෝ එක ෆෝම් එකට ගන්නවා
     setForm({
       name: station.name,
       category: station.category,
       language: station.language || 'Sinhala',
-      streamUrl: station.streamUrl
+      streamUrl: station.streamUrl,
+      logoUrl: station.logoUrl || '' 
     });
-    // ෆෝම් එක තියෙන තැනට Scroll කරන්න (Mobile වලට පහසුයි)
+  
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -77,7 +77,7 @@ const Dashboard = () => {
             await axios.delete(`${backendUrl}/api/stations/${id}`, config);
             fetchStations();
         } catch (err) {
-            alert("Error deleting station");
+            toast.error("Error deleting station");
         }
     }
   };
@@ -147,6 +147,24 @@ const Dashboard = () => {
                 <option value="Multi">Multi Language</option>
             </select>
 
+            {/* ✅ 4. Logo URL Input (New) */}
+            <div className="md:col-span-2">
+                <div className="flex gap-2">
+                    <input 
+                        type="text" placeholder="Logo Image URL (e.g. https://.../logo.png)" 
+                        value={form.logoUrl}
+                        className="w-full bg-slate-800 p-3 rounded border border-white/10 focus:border-purple-500 focus:outline-none text-sm text-blue-300"
+                        onChange={e => setForm({...form, logoUrl: e.target.value})}
+                    />
+                    {/* Small Preview inside form */}
+                    {form.logoUrl && (
+                        <div className="w-12 h-12 bg-black/50 rounded flex items-center justify-center border border-white/10 flex-shrink-0">
+                            <img src={form.logoUrl} alt="Preview" className="w-full h-full object-cover rounded" onError={(e) => e.target.style.display = 'none'} />
+                        </div>
+                    )}
+                </div>
+            </div>
+
             {/* Stream URL */}
             <div className="md:col-span-2">
                 <input 
@@ -172,17 +190,28 @@ const Dashboard = () => {
           
           {stations.map(st => (
             <div key={st._id} className="bg-white/5 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center border border-white/5 hover:bg-white/10 transition group">
-              <div className="mb-3 md:mb-0">
-                <div className="flex items-center gap-3">
-                    <h3 className="font-bold text-lg">{st.name}</h3>
-                    <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30 uppercase">{st.language}</span>
-                    <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30 uppercase">{st.category}</span>
+              <div className="mb-3 md:mb-0 flex items-center gap-4">
+                
+                {/* ✅ 5. List Logo Preview */}
+                <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center border border-white/10 overflow-hidden flex-shrink-0">
+                    {st.logoUrl ? (
+                        <img src={st.logoUrl} alt={st.name} className="w-full h-full object-cover" />
+                    ) : (
+                        <ImageIcon size={20} className="text-slate-600"/>
+                    )}
                 </div>
-                <p className="text-xs text-slate-500 font-mono mt-1 truncate max-w-xs md:max-w-md">{st.streamUrl}</p>
+
+                <div>
+                    <div className="flex items-center gap-3">
+                        <h3 className="font-bold text-lg">{st.name}</h3>
+                        <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30 uppercase">{st.language}</span>
+                        <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30 uppercase">{st.category}</span>
+                    </div>
+                    <p className="text-xs text-slate-500 font-mono mt-1 truncate max-w-xs md:max-w-md">{st.streamUrl}</p>
+                </div>
               </div>
               
-              <div className="flex gap-2 w-full md:w-auto">
-                {/* Edit Button */}
+              <div className="flex gap-2 w-full md:w-auto mt-3 md:mt-0">
                 <button 
                   onClick={() => handleEditClick(st)}
                   className="flex-1 md:flex-none bg-blue-500/20 text-blue-500 p-2 rounded hover:bg-blue-500 hover:text-white transition border border-blue-500/20"
@@ -190,7 +219,6 @@ const Dashboard = () => {
                   <Edit size={18} />
                 </button>
 
-                {/* Delete Button */}
                 <button 
                   onClick={() => handleDelete(st._id)}
                   className="flex-1 md:flex-none bg-red-500/20 text-red-500 p-2 rounded hover:bg-red-500 hover:text-white transition border border-red-500/20"
