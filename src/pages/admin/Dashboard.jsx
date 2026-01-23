@@ -6,7 +6,6 @@ import toast from 'react-hot-toast';
 
 const Dashboard = () => {
   const [stations, setStations] = useState([]);
-  // ✅ 1. State එකට logoUrl එකතු කළා
   const [form, setForm] = useState({ name: '', category: '', language: 'Sinhala', streamUrl: '', logoUrl: '' });
   const [editingId, setEditingId] = useState(null);
   
@@ -19,10 +18,10 @@ const Dashboard = () => {
     headers: { Authorization: `Bearer ${token}` }
   };
 
-  useEffect(() => {
-    if(!token) navigate('/admin');
-    fetchStations();
-  }, []);
+  if (!token) {
+    localStorage.removeItem('token');
+    navigate('/admin');
+  }
 
   const fetchStations = async () => {
     try {
@@ -34,7 +33,6 @@ const Dashboard = () => {
   };
 
   const resetForm = () => {
-    // ✅ 2. Reset කරනකොට logoUrl එකත් හිස් කරනවා
     setForm({ name: '', category: '', language: 'Sinhala', streamUrl: '', logoUrl: '' });
     setEditingId(null);
   };
@@ -59,7 +57,6 @@ const Dashboard = () => {
 
   const handleEditClick = (station) => {
     setEditingId(station._id);
-    // ✅ 3. Edit කරනකොට පරණ ලෝගෝ එක ෆෝම් එකට ගන්නවා
     setForm({
       name: station.name,
       category: station.category,
