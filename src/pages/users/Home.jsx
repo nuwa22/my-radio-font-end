@@ -89,16 +89,16 @@ const Home = () => {
 
   const displayedStations = getDisplayedStations();
 
-  // 4. Error එකක් තියෙනවා නම් මුළු Screen එකේම Error Message එක පෙන්නනවා
+  
   if (error) {
     return (
       <div className="flex h-[100dvh] w-screen bg-[#050011] text-white items-center justify-center relative overflow-hidden">
-         {/* Background Effects (Error එක ආවත් ලස්සනට තියෙන්න) */}
+       
          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#10002b] via-[#240046] to-[#000000] opacity-50"></div>
          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-pink-600/10 rounded-full blur-[100px] pointer-events-none animate-pulse"></div>
          
-         {/* Error Component එක මැදට */}
+        
          <div className="z-50 w-full px-4">
             <ErrorMessage onRetry={fetchStations} />
          </div>
