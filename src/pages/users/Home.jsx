@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import useRadioStore from '../../store/useRadioStore';
 import { Play, Pause, SkipBack, SkipForward, Heart, Radio, Search, Volume1, VolumeX, ListMusic, Volume2, X } from 'lucide-react';
+// 1. Error Message Component එක Import කරගැනීම
+import ErrorMessage from '../../components/ErrorMessage'; 
 
 const Home = () => {
   const { 
@@ -14,22 +16,27 @@ const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobileListOpen, setIsMobileListOpen] = useState(true);
   
- 
+  // 2. Error එකක් ආවොත් බලාගන්න අලුත් State එකක්
+  const [error, setError] = useState(false);
+
   const [activeTab, setActiveTab] = useState('Sinhala'); 
   const audioRef = useRef(null);
 
- 
   const tabs = ['Sinhala', 'Tamil', 'English', 'Multi', 'Favorites'];
 
+  // 3. fetchStations ෆන්ක්ෂන් එක useEffect එකෙන් එළියට ගත්තා (Retry කරන්න පුළුවන් වෙන්න)
+  const fetchStations = async () => {
+    setError(false); // පරණ Error අයින් කරනවා
+    try {
+        const res = await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/stations/");
+        setStations(res.data);
+    } catch (error) {
+        console.error("Error", error);
+        setError(true); // Error එකක් ආවොත් true කරනවා
+    }
+  };
+
   useEffect(() => {
-    const fetchStations = async () => {
-        try {
-            const res = await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/stations/");
-            setStations(res.data);
-        } catch (error) {
-            console.error("Error", error);
-        }
-    };
     fetchStations();
   }, []);
 
@@ -68,7 +75,6 @@ const Home = () => {
   const getDisplayedStations = () => {
     let data = stations;
 
-   
     if (activeTab === 'Favorites') {
         data = data.filter(s => favorites.includes(s._id));
     } else {
@@ -82,6 +88,23 @@ const Home = () => {
   };
 
   const displayedStations = getDisplayedStations();
+
+  // 4. Error එකක් තියෙනවා නම් මුළු Screen එකේම Error Message එක පෙන්නනවා
+  if (error) {
+    return (
+      <div className="flex h-[100dvh] w-screen bg-[#050011] text-white items-center justify-center relative overflow-hidden">
+         {/* Background Effects (Error එක ආවත් ලස්සනට තියෙන්න) */}
+         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#10002b] via-[#240046] to-[#000000] opacity-50"></div>
+         <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
+         <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-pink-600/10 rounded-full blur-[100px] pointer-events-none animate-pulse"></div>
+         
+         {/* Error Component එක මැදට */}
+         <div className="z-50 w-full px-4">
+            <ErrorMessage onRetry={fetchStations} />
+         </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-[100dvh] w-screen bg-[#050011] text-white overflow-hidden font-sans relative select-none">
@@ -101,7 +124,7 @@ const Home = () => {
         }
       `}</style>
 
-     
+      {/* Sidebar (Mobile List) */}
       <div className={`
           fixed inset-0 z-40 bg-[#0e0024] flex flex-col transition-transform duration-300
           md:relative md:inset-auto md:w-80 md:translate-x-0 md:border-r md:border-white/5 md:shadow-2xl md:z-auto
@@ -117,7 +140,6 @@ const Home = () => {
                 </h1>
                 <button onClick={() => setIsMobileListOpen(false)} className="md:hidden p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition cursor-pointer"><X size={24} /></button>
             </div>
-            
             
             <div className="flex items-center gap-2 flex-wrap pb-1 mb-2">
                 {tabs.map((tab) => (
@@ -184,7 +206,7 @@ const Home = () => {
         </div>
       </div>
 
-      
+      {/* Main Player Area */}
       <div className="flex-1 relative h-full flex flex-col overflow-hidden bg-[#050011] w-full">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#10002b] via-[#240046] to-[#000000] animate-hue opacity-50"></div>
         <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
@@ -193,13 +215,13 @@ const Home = () => {
         {activeStation ? (
             <div className="z-10 w-full h-full flex flex-col p-6 md:p-10 relative">
                 
-                
+                {/* Header Actions */}
                 <div className="w-full flex justify-between items-center flex-shrink-0 h-12">
                     <button onClick={() => setIsMobileListOpen(true)} className="md:hidden p-3 rounded-full bg-white/5 text-gray-300 hover:text-white cursor-pointer hover:bg-white/10 transition"><ListMusic size={24} /></button>
                     <button onClick={() => toggleFavorite(activeStation._id)} className={`p-3 rounded-full backdrop-blur-md border border-white/10 transition hover:scale-110 ml-auto cursor-pointer shadow-lg ${favorites.includes(activeStation._id) ? 'bg-pink-500/20 text-pink-500 border-pink-500/30' : 'bg-white/5 text-gray-400 hover:text-white'}`}><Heart size={22} fill={favorites.includes(activeStation._id) ? "currentColor" : "none"} /></button>
                 </div>
 
-                
+                {/* Player Info & Visualizer */}
                 <div className="flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-8 md:gap-14 py-6">
                     <div className="relative flex-shrink-0 h-auto max-h-[40%] md:max-h-[45%] aspect-square flex items-center justify-center">
                         {isPlaying && (
@@ -237,7 +259,7 @@ const Home = () => {
                     </div>
                 </div>
 
-                
+                {/* Controls */}
                 <div className="w-full flex flex-col items-center gap-6 md:gap-8 flex-shrink-0 pb-6 md:pb-2">
                     <div className="flex items-center justify-center gap-8 md:gap-16 w-full">
                         <button onClick={playPrev} className="text-gray-400 hover:text-white hover:scale-110 transition p-2 cursor-pointer opacity-80 hover:opacity-100">
