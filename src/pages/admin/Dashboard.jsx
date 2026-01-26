@@ -11,17 +11,20 @@ const Dashboard = () => {
   
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
   const token = localStorage.getItem('token');
 
   const config = {
     headers: { Authorization: `Bearer ${token}` }
   };
 
-  if (!token) {
-    localStorage.removeItem('token');
-    navigate('/admin');
-  }
+  
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    } else {
+      fetchStations();
+    }
+  }, [token, navigate]);
 
   const fetchStations = async () => {
     try {
@@ -29,6 +32,9 @@ const Dashboard = () => {
       setStations(res.data);
     } catch (err) {
       console.error(err);
+      if (err.response && err.response.status === 401) {
+        handleLogout();
+      }
     }
   };
 
@@ -79,9 +85,10 @@ const Dashboard = () => {
     }
   };
 
+  
   const handleLogout = () => {
       localStorage.removeItem('token');
-      navigate('/admin');
+      navigate('/login');
   }
 
   return (
@@ -93,20 +100,20 @@ const Dashboard = () => {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
               Admin Dashboard
             </h1>
-            <button onClick={handleLogout} className="flex items-center gap-2 text-red-400 hover:text-red-300 border border-red-900/50 p-2 rounded-lg hover:bg-red-900/20 transition">
+            <button onClick={handleLogout} className="cursor-pointer flex items-center gap-2 text-red-400 hover:text-red-300 border border-red-900/50 p-2 rounded-lg hover:bg-red-900/20 transition">
                 <LogOut size={18} /> Logout
             </button>
         </div>
 
         {/* --- ADD / EDIT FORM --- */}
-        <div className={`p-6 rounded-xl border mb-8 transition-all duration-300 ${editingId ? 'bg-purple-900/20 border-purple-500/50' : 'bg-slate-900 border-white/10'}`}>
+        <div className={`p-6 rounded-xl border mb-8 transition-all  duration-300 ${editingId ? 'bg-purple-900/20 border-purple-500/50' : 'bg-slate-900 border-white/10 '}`}>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold flex items-center gap-2">
               {editingId ? <Edit size={20} className="text-purple-400"/> : <Plus size={20} className="text-green-400"/>} 
               {editingId ? "Edit Station" : "Add New Station"}
             </h2>
             {editingId && (
-              <button onClick={resetForm} className="text-sm text-gray-400 hover:text-white flex items-center gap-1">
+              <button onClick={resetForm} className="cursor-pointer text-sm text-gray-400 hover:text-white flex items-center gap-1">
                 <X size={16}/> Cancel
               </button>
             )}
@@ -144,7 +151,7 @@ const Dashboard = () => {
                 <option value="Multi">Multi Language</option>
             </select>
 
-            {/* ✅ 4. Logo URL Input (New) */}
+            {/* Logo URL Input */}
             <div className="md:col-span-2">
                 <div className="flex gap-2">
                     <input 
@@ -153,7 +160,6 @@ const Dashboard = () => {
                         className="w-full bg-slate-800 p-3 rounded border border-white/10 focus:border-purple-500 focus:outline-none text-sm text-blue-300"
                         onChange={e => setForm({...form, logoUrl: e.target.value})}
                     />
-                    {/* Small Preview inside form */}
                     {form.logoUrl && (
                         <div className="w-12 h-12 bg-black/50 rounded flex items-center justify-center border border-white/10 flex-shrink-0">
                             <img src={form.logoUrl} alt="Preview" className="w-full h-full object-cover rounded" onError={(e) => e.target.style.display = 'none'} />
@@ -173,7 +179,7 @@ const Dashboard = () => {
             </div>
 
             {/* Submit Button */}
-            <button className={`p-3 rounded font-bold transition md:col-span-2 flex justify-center items-center gap-2
+            <button className={`cursor-pointer p-3 rounded font-bold transition md:col-span-2 flex justify-center items-center gap-2
                 ${editingId ? 'bg-purple-600 hover:bg-purple-700' : 'bg-green-600 hover:bg-green-700'}`}>
                 {editingId ? <Save size={18}/> : <Plus size={18}/>}
                 {editingId ? "Update Station" : "Add Station"}
@@ -189,7 +195,6 @@ const Dashboard = () => {
             <div key={st._id} className="bg-white/5 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center border border-white/5 hover:bg-white/10 transition group">
               <div className="mb-3 md:mb-0 flex items-center gap-4">
                 
-                {/* ✅ 5. List Logo Preview */}
                 <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center border border-white/10 overflow-hidden flex-shrink-0">
                     {st.logoUrl ? (
                         <img src={st.logoUrl} alt={st.name} className="w-full h-full object-cover" />
@@ -211,14 +216,14 @@ const Dashboard = () => {
               <div className="flex gap-2 w-full md:w-auto mt-3 md:mt-0">
                 <button 
                   onClick={() => handleEditClick(st)}
-                  className="flex-1 md:flex-none bg-blue-500/20 text-blue-500 p-2 rounded hover:bg-blue-500 hover:text-white transition border border-blue-500/20"
+                  className="cursor-pointer flex-1 md:flex-none bg-blue-500/20 text-blue-500 p-2 rounded hover:bg-blue-500 hover:text-white transition border border-blue-500/20"
                 >
                   <Edit size={18} />
                 </button>
 
                 <button 
                   onClick={() => handleDelete(st._id)}
-                  className="flex-1 md:flex-none bg-red-500/20 text-red-500 p-2 rounded hover:bg-red-500 hover:text-white transition border border-red-500/20"
+                  className="cursor-pointer flex-1 md:flex-none bg-red-500/20 text-red-500 p-2 rounded hover:bg-red-500 hover:text-white transition border border-red-500/20"
                 >
                   <Trash2 size={18} />
                 </button>

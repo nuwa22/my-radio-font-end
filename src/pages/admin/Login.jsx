@@ -13,7 +13,7 @@ const Login = () => {
       const res = await axios.
       post(import.meta.env.VITE_BACKEND_URL + "/api/login", formData);
       localStorage.setItem('token', res.data.token);
-      navigate('/admin/dashboard');
+      navigate('/login/dashboard');
     } catch (err) {
       setError('Invalid Username or Password');
     }
@@ -38,7 +38,7 @@ const Login = () => {
             className="w-full bg-slate-800 text-white p-3 rounded-lg border border-white/5 focus:outline-none focus:border-purple-500"
             onChange={(e) => setFormData({...formData, password: e.target.value})}
           />
-          <button className="w-full bg-purple-600 text-white p-3 rounded-lg font-bold hover:bg-purple-700 transition">
+          <button className="cursor-pointer w-full bg-purple-600 text-white p-3 rounded-lg font-bold hover:bg-purple-700 transition">
             Login
           </button>
         </form>
