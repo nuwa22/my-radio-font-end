@@ -1,31 +1,25 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 const SpecialDayEffects = () => {
-  // දැනට දවස චෙක් කරන්නේ නැතුව කෙලින්ම Valentine පෙන්වන්න හදලා තියෙන්නේ
+  // හදවත් ප්‍රමාණය 30කට සීමා කළා Performance එක පවත්වා ගන්න
+  // useMemo පාවිච්චි කළේ Page එක refresh වෙද්දී හදවත් වල position වෙනස් නොවී තිබෙන්නයි
+  const hearts = useMemo(() => Array.from({ length: 30 }), []);
+
   return (
     <div className="fixed inset-0 pointer-events-none z-[60] overflow-hidden">
-      <ValentineRain />
-    </div>
-  );
-};
-
-const ValentineRain = () => {
-  // හදවත් 40ක් වැස්සක් වගේ වැටෙන්න හදල තියෙනවා
-  const hearts = Array.from({ length: 40 });
-
-  return (
-    <div className="absolute inset-0">
       {hearts.map((_, i) => (
         <div
           key={i}
           className="absolute text-pink-500 animate-heart-rain opacity-0"
           style={{
             left: `${Math.random() * 100}%`,
-            top: `-5vh`, // උඩ ඉඳන් වැටෙන්න පටන් ගන්න
-            animationDelay: `${Math.random() * 8}s`,
-            animationDuration: `${4 + Math.random() * 4}s`, // එක එක වේගයෙන් වැටෙන්න
-            fontSize: `${Math.random() * (25 - 12) + 12}px`,
-            filter: `blur(${Math.random() > 0.8 ? '1px' : '0px'})`, // සමහර ඒවා පොඩ්ඩක් blur කරන්න depth එක ගන්න
+            top: `-10vh`,
+            // එක එක හදවත වැටෙන වේගය වෙනස් කළා (තත්පර 10 සිට 20 දක්වා - ඉතා ස්ලෝ)
+            animationDuration: `${10 + Math.random() * 10}s`,
+            animationDelay: `${Math.random() * 15}s`,
+            fontSize: `${Math.random() * (22 - 14) + 14}px`,
+            // Smoothness එක වැඩි කරන්න GPU Acceleration පාවිච්චි කරනවා
+            willChange: 'transform, opacity',
           }}
         >
           ❤️
@@ -34,18 +28,26 @@ const ValentineRain = () => {
       <style>{`
         @keyframes heart-rain {
           0% { 
-            transform: translateY(0) rotate(0deg) scale(0.5); 
+            transform: translateY(0) rotate(0deg) scale(0.8); 
             opacity: 0; 
           }
-          10% { opacity: 0.8; }
-          90% { opacity: 0.8; }
+          15% { 
+            opacity: 0.6; 
+          }
+          85% { 
+            opacity: 0.6; 
+          }
           100% { 
-            transform: translateY(110vh) rotate(360deg) scale(1.2); 
+            /* පහළට වැටෙන දුර සහ කරකැවෙන ප්‍රමාණය */
+            transform: translateY(115vh) rotate(180deg) scale(1.1); 
             opacity: 0; 
           }
         }
         .animate-heart-rain { 
-          animation: heart-rain linear infinite; 
+          /* linear පාවිච්චි කිරීමෙන් එකම වේගයකින් (Smooth) වැටේ */
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          animation-name: heart-rain;
         }
       `}</style>
     </div>
