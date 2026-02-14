@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import useRadioStore from '../../store/useRadioStore';
+import SpecialDayEffects from '../../components/SpecialDayEffects';
 // මෙන්න මෙතනට Heart එක ආපහු එකතු කළා 👇
 import { Play, Pause, SkipBack, SkipForward, Radio, Search, Volume1, VolumeX, ListMusic, Volume2, X, Heart } from 'lucide-react';
 import ErrorMessage from '../../components/ErrorMessage'; 
@@ -109,6 +110,9 @@ const Home = () => {
   return (
     <div className="flex h-[100dvh] w-screen bg-[#050011] text-white overflow-hidden font-sans relative select-none">
       
+      {/* විශේෂ දින ඉෆෙක්ට්ස් (Valentine ආදිය) */}
+      <SpecialDayEffects />
+
       <style>{`
         @keyframes spin-slow {
           from { transform: rotate(0deg); }
@@ -177,7 +181,7 @@ const Home = () => {
                                 </div>
                             </div>
                         </div>
-                        {/* List එකේ Heart එක මෙතන තියෙන නිසා තමයි Error එක ආවේ */}
+                        {/* List එකේ Heart එක */}
                         <div className="flex items-center gap-2">
                             {favorites.includes(station._id) && (<Heart size={12} fill="#ec4899" className="text-pink-500 opacity-70"/>)}
                             {activeStation?._id === station._id && isPlaying && (
@@ -227,9 +231,6 @@ const Home = () => {
                             onToggle={handleFavoriteToggle}
                         />
                     </div>
-                    {/* Mobile එකේදි දකුණු පැත්තේ button එක පෙන්වන්නෙ නැත්නම් මෙතන හදන්න පුළුවන්, 
-                        හැබැයි අපි Ticker එක වම් පැත්තට ගත්ත නිසා Mobile එකේදි Button එක නැති වෙන්න පුළුවන්.
-                        Mobile එකටත් Button එක ඕන නම් පහළ කෑල්ල uncomment කරන්න: */}
                      <div className="md:hidden flex items-center animate-fade-in ml-auto">
                         <FavoritePill 
                             isFavorite={isCurrentStationFavorite}
@@ -237,7 +238,6 @@ const Home = () => {
                         />
                     </div>
                 </div>
-                {/* ================================= */}
 
 
                 {/* Player Info & Visualizer */}
